@@ -1,0 +1,3 @@
+config LIBFRIBIDI
+    bool "Fribidi - Free Implementation of the Unicode Bidirectional Algorithm"
+    default n
