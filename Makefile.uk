@@ -1,0 +1,100 @@
+#  libfribidi Makefile.uk
+#
+#  Authors: Andrei Tatar <andrei@unikraft.io>
+#
+#  Copyright (c) 2023, Unikraft GmbH and The Unikraft Authors.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from
+#     this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+################################################################################
+# Library registration
+################################################################################
+$(eval $(call addlib_s,libfribidi,$(CONFIG_LIBFRIBIDI)))
+
+################################################################################
+# Sources
+################################################################################
+LIBFRIBIDI_VERSION=1.0.13
+LIBFRIBIDI_URL=https://github.com/fribidi/fribidi/releases/download/v$(LIBFRIBIDI_VERSION)/fribidi-$(LIBFRIBIDI_VERSION).tar.xz
+LIBFRIBIDI_DIRNAME=fribidi-$(LIBFRIBIDI_VERSION)
+#LIBFRIBIDI_PATCHDIR=$(LIBFRIBIDI_BASE)/patches
+$(eval $(call fetch,libfribidi,$(LIBFRIBIDI_URL)))
+#$(eval $(call patch,libfribidi,$(LIBFRIBIDI_PATCHDIR),$(LIBFRIBIDI_DIRNAME)))
+
+################################################################################
+# Helpers
+################################################################################
+LIBFRIBIDI_SRC = $(LIBFRIBIDI_ORIGIN)/$(LIBFRIBIDI_DIRNAME)
+
+################################################################################
+# Library includes
+################################################################################
+# API
+LIBFRIBIDI__API += -I$(LIBFRIBIDI_SRC)/lib
+# Needed for fribidi-config.h included from fribidi.h
+LIBFRIBIDI__API += -iquote$(LIBFRIBIDI_BASE)/include
+
+CINCLUDES-$(CONFIG_LIBFRIBIDI) += $(LIBFRIBIDI__API)
+CXXINCLUDES-$(CONFIG_LIBFRIBIDI) += $(LIBFRIBIDI__API)
+
+# Internal
+LIBFRIBIDI_CINCLUDES += -I$(LIBFRIBIDI_BASE)/include
+
+################################################################################
+# Global flags
+################################################################################
+LIBFRIBIDI_CFLAGS += -DHAVE_CONFIG_H
+LIBFRIBIDI_CFLAGS += -DFRIBIDI_BUILD
+LIBFRIBIDI_CFLAGS += -DFRIBIDI_LIB_STATIC
+
+LIBFRIBIDI_CFLAGS-y += -Wno-enum-conversion
+LIBFRIBIDI_CFLAGS-$(call have_clang) += -Wno-macro-redefined
+
+################################################################################
+# Library sources
+################################################################################
+# These are taken from the upstream build in the order that make builds them.
+# Please take care to maintain the order when updating.
+################################################################################
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-arabic.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-bidi.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-bidi-types.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-char-sets.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-char-sets-cap-rtl.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-char-sets-cp1255.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-char-sets-cp1256.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-char-sets-iso8859-6.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-char-sets-iso8859-8.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-char-sets-utf8.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-deprecated.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-joining.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-joining-types.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-mirroring.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-brackets.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-run.c
+LIBFRIBIDI_SRCS-y += $(LIBFRIBIDI_SRC)/lib/fribidi-shape.c
